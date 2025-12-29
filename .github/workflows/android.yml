@@ -2,51 +2,65 @@ name: Android CI/CD (Fastlane)
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   android:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js (for React Native)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      # 3️⃣ Setup Java (required for Android build)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+      # 4️⃣ Setup Ruby (required for Fastlane + Bundler)
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1
           bundler-cache: true
 
+      # 5️⃣ Install JS dependencies
       - name: Install JS dependencies
         run: npm install
 
+      # 6️⃣ Fix gradlew permission (CRITICAL)
+      - name: Grant execute permission to gradlew
+        run: chmod +x android/gradlew
+
+      # 7️⃣ Restore Android keystore
       - name: Restore Android keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > android/app/release.keystore
 
+      # 8️⃣ Create Play Store service account JSON
       - name: Create Play Store JSON
         run: |
           mkdir -p android/fastlane
           echo '${{ secrets.PLAY_STORE_JSON }}' > android/fastlane/play-store.json
 
+      # 9️⃣ Install Ruby gems (Fastlane)
       - name: Install Ruby gems
         run: |
           cd android
           gem install bundler
           bundle install
 
+      # 🔟 Run Fastlane (Internal testing)
       - name: Run Fastlane (Internal testing)
         run: |
           cd android
