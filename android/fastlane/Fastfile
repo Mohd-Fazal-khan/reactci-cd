@@ -41,14 +41,19 @@ platform :android do
   lane :internal do
     gradle(
       task: "bundle",
-      build_type: "Release"
+      build_type: "Release",
+      properties: {
+        "MYAPP_UPLOAD_STORE_FILE" => "release.keystore",
+        "MYAPP_UPLOAD_KEY_ALIAS" => "my-key-alias",
+        "MYAPP_UPLOAD_STORE_PASSWORD" => "123456",
+        "MYAPP_UPLOAD_KEY_PASSWORD" => "123456"
+      }
     )
 
-   upload_to_play_store(
-  track: "internal",
-  release_status: "draft",
-  json_key: "fastlane/play-store.json"
-)
-
+    upload_to_play_store(
+      track: "internal",
+      release_status: "draft",
+      json_key: "fastlane/play-store.json"
+    )
   end
 end

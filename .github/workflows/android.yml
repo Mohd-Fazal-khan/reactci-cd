@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js (MUST be 20)
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,25 +42,29 @@ jobs:
       - name: Grant execute permission to gradlew
         run: chmod +x android/gradlew
 
-      # 7️⃣ Restore keystore
+      # 7️⃣ Restore Android keystore (CRITICAL)
       - name: Restore Android keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > android/app/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
-      # 8️⃣ Create Play Store JSON
+      # 8️⃣ Create Play Store service account JSON
       - name: Create Play Store JSON
         run: |
           mkdir -p android/fastlane
           echo '${{ secrets.PLAY_STORE_JSON }}' > android/fastlane/play-store.json
 
-      # 9️⃣ Install Fastlane
+      # 9️⃣ Install Ruby gems
       - name: Install Ruby gems
         run: |
           cd android
           bundle install
 
-      # 🔟 Run Fastlane
+      # 🔟 Run Fastlane (Internal testing)
       - name: Run Fastlane (Internal testing)
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           cd android
           bundle exec fastlane android internal
