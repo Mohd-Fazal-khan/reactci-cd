@@ -1,45 +1,36 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import FlyerScreen from "./src/FlyerScreen";
+import FirstScreen from "./src/FirstScreen";
+// import FlyerScreen from "./src/Flyerscreen";
+// import ReferralScreen from "./src/ReferralScreen"; // Add ReferralScreen
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const Stack = createNativeStackNavigator();
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+const linking = {
+  prefixes: [
+    "demo://",                   // Custom scheme
+    // "https://demolinks.vercel.app"
+    "https://demolinks-ten.vercel.app" // HTTP redirect links
+  ],
+  config: {
+    screens: {
+      // FirstScreen: "first",                   // optional deep link
+      FlyerScreen: "flyer/:flyerId/:productId",
+      // ReferralScreen: "refer/:refCode",
+    },
   },
-});
+};
 
-export default App;
+export default function App() {
+  return (
+    <NavigationContainer linking={linking}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="FirstScreen" component={FirstScreen} />
+        <Stack.Screen name="FlyerScreen" component={FlyerScreen} />
+        {/* <Stack.Screen name="ReferralScreen" component={ReferralScreen} /> */}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
