@@ -1,0 +1,42 @@
+name: Android CI/CD (Fastlane)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install JS dependencies
+        run: npm install
+
+      - name: Restore Android keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > android/app/release.keystore
+
+      - name: Create Play Store service account JSON
+        run: |
+          echo '${{ secrets.PLAY_STORE_JSON }}' > android/fastlane/play-store.json
+
+      - name: Run Fastlane (Internal testing)
+        run: |
+          cd android
+          bundle install
+          bundle exec fastlane internal
