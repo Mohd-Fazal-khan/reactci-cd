@@ -2,8 +2,7 @@ name: Android CI/CD (Fastlane)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   android:
@@ -24,6 +23,12 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+          bundler-cache: true
+
       - name: Install JS dependencies
         run: npm install
 
@@ -31,12 +36,18 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > android/app/release.keystore
 
-      - name: Create Play Store service account JSON
+      - name: Create Play Store JSON
         run: |
+          mkdir -p android/fastlane
           echo '${{ secrets.PLAY_STORE_JSON }}' > android/fastlane/play-store.json
+
+      - name: Install Ruby gems
+        run: |
+          cd android
+          gem install bundler
+          bundle install
 
       - name: Run Fastlane (Internal testing)
         run: |
           cd android
-          bundle install
           bundle exec fastlane internal
