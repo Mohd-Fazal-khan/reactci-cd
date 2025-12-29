@@ -44,9 +44,11 @@ platform :android do
       build_type: "Release"
     )
 
-    upload_to_play_store(
-      track: "internal",
-      release_status: "draft"
-    )
+   upload_to_play_store(
+  track: "internal",
+  release_status: "draft",
+  json_key: "fastlane/play-store.json"
+)
+
   end
 end
